@@ -71,6 +71,22 @@ def resolve_tracking_uri(preferred_uri: str | None = None) -> str:
     return f"sqlite:///{db_path}"
 
 
+def configure_mlflow_experiment(tracking_uri: str, experiment_name: str = EXPERIMENT_NAME) -> str:
+    """Configura tracking URI e garante experimento compatível com o modo HTTP ou SQLite."""
+    mlflow.set_tracking_uri(tracking_uri)
+    target_name = experiment_name
+    if tracking_uri.startswith("sqlite:"):
+        existing = mlflow.get_experiment_by_name(target_name)
+        if existing is not None and existing.artifact_location.startswith("mlflow-artifacts:"):
+            target_name = f"{experiment_name}-local"
+        if mlflow.get_experiment_by_name(target_name) is None:
+            local_artifacts = (Path("mlruns") / "local_artifacts").resolve()
+            local_artifacts.mkdir(parents=True, exist_ok=True)
+            mlflow.create_experiment(target_name, artifact_location=local_artifacts.as_uri())
+    mlflow.set_experiment(target_name)
+    return target_name
+
+
 def make_lgbm_params(objective: str) -> dict[str, object]:
     """Retorna hiperparâmetros consistentes do LightGBM para série diária."""
     return {
@@ -85,7 +101,7 @@ def make_lgbm_params(objective: str) -> dict[str, object]:
         "reg_alpha": 0.1,
         "reg_lambda": 1.0,
         "random_state": 42,
-        "n_jobs": -1,
+        "n_jobs": 1,
         "verbose": -1,
     }
 
@@ -128,8 +144,7 @@ def run_experiment_grid(
     configs: tuple[ExperimentConfig, ...] = DEFAULT_GRID,
 ) -> pd.DataFrame:
     """Treina a grade de modelos com early stopping cronológico e registra no MLflow."""
-    mlflow.set_tracking_uri(tracking_uri)
-    mlflow.set_experiment(experiment_name)
+    configure_mlflow_experiment(tracking_uri, experiment_name)
 
     feat_df = build_features(gold_df, horizon=0)
     results: list[dict[str, object]] = []
@@ -228,8 +243,7 @@ def refit_and_forecast_7d(
     output_path: Path = FORECAST_OUTPUT_PATH,
 ) -> pd.DataFrame:
     """Retreina a configuração vencedora até a última data observada e prevê 7 dias."""
-    mlflow.set_tracking_uri(tracking_uri)
-    mlflow.set_experiment(experiment_name)
+    configure_mlflow_experiment(tracking_uri, experiment_name)
 
     feat_all = build_features(gold_df, horizon=7)
     observed = feat_all[~feat_all["is_forecast"]].copy()
