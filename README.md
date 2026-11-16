@@ -31,7 +31,7 @@ uv run python -m src.ingest
 ```
 
 ### 3. Transformação (camadas Silver e Gold)
-Executa os modelos e testes do `dbt` sobre o DuckDB (`data/warehouse.duckdb`), gerando `silver.silver_carga_energia_diaria`, `gold.gold_carga_energia_se` e exportando `data/gold/carga_energia_se.parquet`:
+Executa os modelos, testes e geração de documentação do `dbt` sobre o DuckDB (`data/warehouse.duckdb`), gerando `silver.silver_carga_energia_diaria`, `gold.gold_carga_energia_se`, exportando `data/gold/carga_energia_se.parquet` e atualizando `docs/dbt/index.html`:
 ```bash
 uv run python -m src.transform
 ```
@@ -39,4 +39,6 @@ Ou diretamente via CLI do dbt:
 ```bash
 uv run dbt run --project-dir dbt --profiles-dir dbt
 uv run dbt test --project-dir dbt --profiles-dir dbt
+uv run dbt docs generate --project-dir dbt --profiles-dir dbt --static
+uv run dbt docs serve --project-dir dbt --profiles-dir dbt
 ```
