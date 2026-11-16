@@ -13,7 +13,7 @@ _Em desenvolvimento — os resultados da comparação entre modelo e baseline se
 - [x] **1. Ambiente**: Repositório inicializado com `pyproject.toml`, `.gitignore` e `README.md`
 - [x] **2. Ingestão (bronze)**: Dados de 2018 até hoje salvos em Parquet sem alterações
 - [x] **3. Transformação (silver e gold)**: Modelos dbt + DuckDB para a série diária do subsistema `SE` e testes
-- [ ] **4. Baseline**: Previsão ingênua repetindo o valor do mesmo dia da semana anterior
+- [x] **4. Baseline**: Previsão ingênua repetindo o valor do mesmo dia da semana anterior
 - [ ] **5. Modelo**: LightGBM com lags e variáveis de calendário, registrado no MLflow
 - [ ] **6. Avaliação**: Backtesting temporal comparando modelo e baseline em MAE e MAPE
 
@@ -41,4 +41,15 @@ uv run dbt run --project-dir dbt --profiles-dir dbt
 uv run dbt test --project-dir dbt --profiles-dir dbt
 uv run dbt docs generate --project-dir dbt --profiles-dir dbt --static
 uv run dbt docs serve --project-dir dbt --profiles-dir dbt
+```
+
+### 4. Baseline (`D-7`)
+Gera o histórico alinhado e a previsão dos próximos 7 dias repetindo o valor do mesmo dia da semana anterior (`data/predictions/baseline_d7.parquet`):
+```bash
+uv run python -m src.baseline
+```
+
+### Testes unitários
+```bash
+uv run pytest -v
 ```
