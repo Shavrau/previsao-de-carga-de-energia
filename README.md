@@ -12,7 +12,7 @@ _Em desenvolvimento — os resultados da comparação entre modelo e baseline se
 
 - [x] **1. Ambiente**: Repositório inicializado com `pyproject.toml`, `.gitignore` e `README.md`
 - [x] **2. Ingestão (bronze)**: Dados de 2018 até hoje salvos em Parquet sem alterações
-- [ ] **3. Transformação (silver e gold)**: Modelos dbt + DuckDB para a série diária do subsistema `SE` e testes
+- [x] **3. Transformação (silver e gold)**: Modelos dbt + DuckDB para a série diária do subsistema `SE` e testes
 - [ ] **4. Baseline**: Previsão ingênua repetindo o valor do mesmo dia da semana anterior
 - [ ] **5. Modelo**: LightGBM com lags e variáveis de calendário, registrado no MLflow
 - [ ] **6. Avaliação**: Backtesting temporal comparando modelo e baseline em MAE e MAPE
@@ -28,4 +28,15 @@ uv sync
 Baixa os arquivos Parquet anuais de carga diária do ONS (2018 até hoje) diretamente do bucket público S3 (`us-west-2`) via DuckDB `httpfs` para `data/bronze/`, junto com o dicionário de dados:
 ```bash
 uv run python -m src.ingest
+```
+
+### 3. Transformação (camadas Silver e Gold)
+Executa os modelos e testes do `dbt` sobre o DuckDB (`data/warehouse.duckdb`), gerando `silver.silver_carga_energia_diaria`, `gold.gold_carga_energia_se` e exportando `data/gold/carga_energia_se.parquet`:
+```bash
+uv run python -m src.transform
+```
+Ou diretamente via CLI do dbt:
+```bash
+uv run dbt run --project-dir dbt --profiles-dir dbt
+uv run dbt test --project-dir dbt --profiles-dir dbt
 ```

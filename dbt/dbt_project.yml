@@ -1,0 +1,23 @@
+name: "ons_carga_energia"
+version: "1.0.0"
+config-version: 2
+
+profile: "ons_carga_energia"
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+  - "logs"
+
+models:
+  ons_carga_energia:
+    silver:
+      +materialized: table
+      +schema: silver
+    gold:
+      +materialized: table
+      +schema: gold

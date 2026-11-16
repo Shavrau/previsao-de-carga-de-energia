@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: gold_carga_energia_se
+    description: "Série diária limpa de carga de energia do subsistema Sudeste/Centro-Oeste (SE) pronta para baseline e modelagem."
+    columns:
+      - name: data_referencia
+        description: "Data de referência da medição diária (chave única da série)."
+        tests:
+          - not_null
+          - unique
+      - name: id_subsistema
+        description: "Código do subsistema (sempre 'SE')."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["SE"]
+      - name: nom_subsistema
+        description: "Nome do subsistema ('Sudeste/Centro-Oeste')."
+        tests:
+          - not_null
+      - name: carga_mwmed
+        description: "Carga de energia diária em MWmed (> 0)."
+        tests:
+          - not_null
+      - name: regime_metodologico
+        description: "Marco metodológico do ONS vigente na data (pre_2021_03, nao_despachadas_2021_2023, com_mmgd_pos_2023_04)."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["pre_2021_03", "nao_despachadas_2021_2023", "com_mmgd_pos_2023_04"]

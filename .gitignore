@@ -44,8 +44,11 @@ data/
 *.duckdb
 *.duckdb.wal
 dbt_packages/
+dbt/dbt_packages/
 target/
+dbt/target/
 logs/
+dbt/logs/
 mlruns/
 mlartifacts/
 *.db

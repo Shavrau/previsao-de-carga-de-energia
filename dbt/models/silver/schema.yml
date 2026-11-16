@@ -1,0 +1,25 @@
+version: 2
+
+models:
+  - name: silver_carga_energia_diaria
+    description: "Série diária de carga de energia por subsistema com tipos normalizados (DATE e DOUBLE)."
+    columns:
+      - name: id_subsistema
+        description: "Código do subsistema do SIN."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["SE", "S", "NE", "N"]
+      - name: nom_subsistema
+        description: "Nome padronizado do subsistema."
+        tests:
+          - not_null
+      - name: data_referencia
+        description: "Data de referência da carga diária."
+        tests:
+          - not_null
+      - name: carga_mwmed
+        description: "Carga de energia diária em MWmed (DOUBLE)."
+        tests:
+          - not_null
