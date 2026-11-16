@@ -1,0 +1,7 @@
+[project]
+name = "previsao-de-carga-de-energia"
+version = "0.1.0"
+description = "Pipeline de previsão de carga de energia diária do subsistema Sudeste/Centro-Oeste (ONS) para os próximos 7 dias."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
