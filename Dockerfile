@@ -13,4 +13,4 @@ COPY src ./src
 COPY dbt ./dbt
 COPY README.md ./
 
-CMD ["uv", "run", "python", "-m", "src.train"]
+CMD ["uv", "run", "python", "-m", "src.pipeline"]

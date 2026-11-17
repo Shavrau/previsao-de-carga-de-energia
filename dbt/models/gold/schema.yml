@@ -31,3 +31,33 @@ models:
           - accepted_values:
               arguments:
                 values: ["pre_2021_03", "nao_despachadas_2021_2023", "com_mmgd_pos_2023_04"]
+
+  - name: gold_carga_energia_subsistemas
+    description: "Série diária limpa de carga de energia para os 4 subsistemas (SE, S, NE, N) para modelagem global."
+    columns:
+      - name: data_referencia
+        description: "Data de referência da medição diária."
+        tests:
+          - not_null
+      - name: id_subsistema
+        description: "Código do subsistema ('SE', 'S', 'NE', 'N')."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["SE", "S", "NE", "N"]
+      - name: nom_subsistema
+        description: "Nome do subsistema."
+        tests:
+          - not_null
+      - name: carga_mwmed
+        description: "Carga de energia diária em MWmed (> 0)."
+        tests:
+          - not_null
+      - name: regime_metodologico
+        description: "Marco metodológico do ONS vigente na data."
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["pre_2021_03", "nao_despachadas_2021_2023", "com_mmgd_pos_2023_04"]

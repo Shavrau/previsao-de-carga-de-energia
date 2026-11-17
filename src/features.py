@@ -14,6 +14,13 @@ REGIME_MAP: dict[str, int] = {
     "com_mmgd_pos_2023_04": 2,
 }
 
+SUBSYSTEM_MAP: dict[str, int] = {
+    "SE": 0,
+    "S": 1,
+    "NE": 2,
+    "N": 3,
+}
+
 FEATURE_COLUMNS: tuple[str, ...] = (
     "lag_7",
     "lag_14",
@@ -48,6 +55,8 @@ FEATURE_COLUMNS: tuple[str, ...] = (
     "regime_code",
 )
 
+GLOBAL_FEATURE_COLUMNS: tuple[str, ...] = (*FEATURE_COLUMNS, "subsistema_code")
+
 
 def _extend_future_horizon(ordered: pd.DataFrame, horizon: int) -> pd.DataFrame:
     """Anexa `horizon` dias futuros após a última data observada com target nulo."""
@@ -67,11 +76,21 @@ def _extend_future_horizon(ordered: pd.DataFrame, horizon: int) -> pd.DataFrame:
         if "regime_metodologico" in ordered.columns
         else "com_mmgd_pos_2023_04"
     )
+    subsistema_id = (
+        str(ordered["id_subsistema"].iloc[-1])
+        if "id_subsistema" in ordered.columns
+        else "SE"
+    )
+    subsistema_nome = (
+        str(ordered["nom_subsistema"].iloc[-1])
+        if "nom_subsistema" in ordered.columns
+        else "Sudeste/Centro-Oeste"
+    )
     future_df = pd.DataFrame(
         {
             "data_referencia": future_dates,
-            "id_subsistema": "SE",
-            "nom_subsistema": "Sudeste/Centro-Oeste",
+            "id_subsistema": subsistema_id,
+            "nom_subsistema": subsistema_nome,
             "carga_mwmed": np.nan,
             "regime_metodologico": regime,
             "is_forecast": True,
@@ -154,3 +173,21 @@ def build_features(df: pd.DataFrame, horizon: int = 0) -> pd.DataFrame:
     full["regime_code"] = regime_series.map(REGIME_MAP).fillna(2).astype(int)
 
     return full
+
+
+def build_global_features(df: pd.DataFrame, horizon: int = 0) -> pd.DataFrame:
+    """Constrói matriz de atributos sem vazamento para todos os subsistemas."""
+    if "id_subsistema" not in df.columns:
+        raise ValueError("Coluna `id_subsistema` é obrigatória para features globais.")
+
+    frames: list[pd.DataFrame] = []
+    for sub_id, sub_df in df.groupby("id_subsistema", sort=False):
+        feat_sub = build_features(sub_df, horizon=horizon)
+        feat_sub["subsistema_code"] = SUBSYSTEM_MAP.get(str(sub_id), -1)
+        frames.append(feat_sub)
+
+    return (
+        pd.concat(frames, ignore_index=True)
+        .sort_values(["data_referencia", "id_subsistema"])
+        .reset_index(drop=True)
+    )
